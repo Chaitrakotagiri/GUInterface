@@ -12,7 +12,6 @@ import pygetwindow as gw
 from PIL import ImageGrab
 import pandas as pd
 import openpyxl
-from rs_instr import ConfigEquipment
 import yaml
 import time
 import sys
@@ -239,15 +238,9 @@ class AutomatedGui():
         self.saved_combinations = []
         self.running_combinations = False
         self.pause_combinations = False
-        self.rcm_status_refresh = 0
-        self.rcm_status_counter = 0
         self.simu_mode = False
         self.selected_parameters_list = []
         self.test_data = test_data
-        self.df_tx_if = []
-        self.df_rx_if =[]
-        self.df_tx_rf = []
-        self.df_rx_rf = []
         self.test_list = sg.DropDown([], size=(20, 8), key="-TESTLIST-")
         self.checkbox_to_param = {
             "temp": "temperatures",
@@ -258,12 +251,7 @@ class AutomatedGui():
             "CA": "CA",
             "Option": "Option"
         }
-        self.results = 0
-        self.voltage = 0
-        self.current = 0
-        self.power = 0
         self.report_str = ""
-        self.file_path = r"C:\logs\calibration\calibration_results.xlsx"
         self.dut_name = ""
         self.dut_vendor = ""
         self.dut_rev = ""
@@ -633,9 +621,7 @@ class AutomatedGui():
                 self.dut_configure()
 
             if event == 'About':
-                sg.Popup(
-                    "Automated Test program for Intellian RCM/UCM/DCM Testing.\nSoftware version:" + SW_VERSION + "\nIntellian Tech",
-                    title='About this Program', icon=r'logo1_7DK_2.ico')
+                sg.Popup("About",title='About this Program', icon=r'logo1_7DK_2.ico')
 
 
     def dut_configure(self):
