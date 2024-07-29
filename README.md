@@ -11,7 +11,7 @@ The program allows users to automate various test scenarios and interact with di
 You can clone this repository. 
 Directly run the AutomatedGuiInterface.py file, you will see a window opened. 
 You can directly add test parameters to test list and run the selected this. 
-You can add/change teh event handling code inside the mainloop to what you actually want the test to do. 
+You can add/change the event handling code inside the mainloop of .py file to what you actually want the test to do. (Function handling)
 
 
 
