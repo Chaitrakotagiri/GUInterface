@@ -293,6 +293,21 @@ class AutomatedGui():
              sg.Text(f'DUT SN:{self.dut_sn}', font=(font, 10, 'bold')), sg.Text(key='dut_sn', size=(3, 1) , font=(font, 10, 'bold')),
             ]
         ]
+        test_equipment_status_layout = [
+            [
+                sg.Button("Check Equipment Status", key='Check_equip_status'),
+            ],
+
+            [
+                sg.Text(f'Signal Generator', font=(font, 12, 'bold')),
+                sg.Text('SG_status'), self.LEDIndicator('SG_status'),
+
+             sg.Text(f'Spectrum Analyser', font=(font, 12, 'bold')),
+             sg.Text('SA_status'), self.LEDIndicator('SA_status'),
+             ]
+
+
+        ]
         for section_name, tests in test_data['Tests'].items():
             tab_section = []
 
@@ -347,6 +362,7 @@ class AutomatedGui():
 
         layout.append([sg.Menu(menu_bar)])
         layout.append([sg.Frame('Current DUT status', status_frame_layout)])
+        layout.append([sg.Frame('Current Equipment status', test_equipment_status_layout)])
         layout.append([sg.TabGroup([tab_layout], key="-PARAMS-", focus_color = 'White', font=(font, font_size, 'normal'), tab_location='left', tab_border_width= 1, expand_x = True, expand_y=True, selected_title_color= 'Black',selected_background_color='Yellow' )])
         layout.append([sg.Button("Load Earlier Tests", key="-LOAD_COMBINATIONS-"),
                        sg.Text("Calibration Option:", font=(font, 10, 'bold')),
@@ -374,6 +390,18 @@ class AutomatedGui():
         self.window = sg.Window(f'Automated Test GUI - SW Version: {SW_VERSION} ', layout, finalize=True, size=(self.width, self.height), resizable=True)
         self.original_size = self.window.size
 
+    def LEDIndicator(self, key=None, radius=30):
+        return sg.Graph(canvas_size=(radius, radius),
+                        graph_bottom_left=(-radius, -radius),
+                        graph_top_right=(radius, radius),
+                        pad=(0, 0), key=key)
+
+    def SetLED(self, window, key, color, text):
+        graph = window[key]
+        graph.erase()
+        graph.draw_circle((0, 0), 30, fill_color=color, line_color=color)
+        graph.draw_text(text, (0, 0), font = ("", 4, "bold"))
+
     def load_from_yaml(self):
         try:
             with open("dut_info.yaml", "r") as file:
@@ -393,6 +421,12 @@ class AutomatedGui():
     def flush(self):  # This is for the log
         self.terminal.flush()
         self.log.flush()
+
+    def check_status_function(self, status):
+        if status:
+            return 'Available'
+        else:
+            return 'Not Available'
 
     def mainloop(self): # This loop handles all the events of the GUI
         w = self.width
@@ -438,6 +472,11 @@ class AutomatedGui():
 
                 self.window["-OUTPUT-"].update(calibration_result)
 
+            if event == 'Check_equip_status':
+                sg_status = 0 # Change this to actual output when connection with sig-gen is successfully established
+                sa_status = 0 # Change this to actual output when connection with spec-an is successfully established
+                self.SetLED(self.window, 'SG_status', 'green' if sg_status else 'red', 'Available' if sg_status else 'Not Available')
+                self.SetLED(self.window, 'SA_status', 'green' if sa_status else 'red', 'Available' if sa_status else 'Not Available')
 
             if event == "Add to Test List":
                 self.add_to_test_list(value)  # Collect the selected parameters
