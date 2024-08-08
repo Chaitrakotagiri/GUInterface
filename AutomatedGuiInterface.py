@@ -289,6 +289,9 @@ class AutomatedGui():
                     ['Help', ['About']],]
         calibration_options = ["Path 1", "Path 2", "Path 3", "Path 4"]
         status_frame_layout = [
+            [
+                sg.Button("DUT Configure", key='DUT Configure'),
+            ],
             [sg.Text(f'DUT:{self.dut_name} DUT Type: {self.dut_vendor}',font=(font, 12, 'bold')), sg.Text(key='UnitType', size=(3, 1), font=(font, 10, 'bold')),
              sg.Text(f'DUT SN:{self.dut_sn}', font=(font, 10, 'bold')), sg.Text(key='dut_sn', size=(3, 1) , font=(font, 10, 'bold')),
             ]
@@ -308,8 +311,17 @@ class AutomatedGui():
 
 
         ]
+        tab_layout_first = []
+        tab_layout_second = []
+        index = 0
         for section_name, tests in test_data['Tests'].items():
-            tab_section = []
+            index += 1
+            # tab_section = []
+            first_tab_section = []
+            second_tab_section  = []
+            len_tests = len(test_data['Tests'])
+            half_value = len_tests//2
+
 
             # Iterate through the tests in each section
             for test in tests:
@@ -355,26 +367,49 @@ class AutomatedGui():
 
                     ], font=(font, 14, 'bold'), border_width=3, title_color='Yellow'),
                 ]
+                if index <= half_value:
+                    first_tab_section.append(test_section)
+                else:
+                    second_tab_section.append(test_section)
 
-                tab_section.append(test_section)
-            tab = sg.Tab(section_name, tab_section)
-            tab_layout.append(tab)
+            if first_tab_section:
+                first_tab = sg.Tab(section_name, first_tab_section)
+                tab_layout_first.append(first_tab)
+            else:
+                second_tab = sg.Tab(section_name, second_tab_section)
+                tab_layout_second.append(second_tab)
 
-        layout.append([sg.Menu(menu_bar)])
-        layout.append([sg.Frame('Current DUT status', status_frame_layout)])
-        layout.append([sg.Frame('Current Equipment status', test_equipment_status_layout)])
-        layout.append([sg.TabGroup([tab_layout], key="-PARAMS-", focus_color = 'White', font=(font, font_size, 'normal'), tab_location='left', tab_border_width= 1, expand_x = True, expand_y=True, selected_title_color= 'Black',selected_background_color='Yellow' )])
-        layout.append([sg.Button("Load Earlier Tests", key="-LOAD_COMBINATIONS-"),
+            #     tab_section.append(test_section)
+            # tab = sg.Tab(section_name, tab_section)
+            # tab_layout.append(tab)
+
+        test_configure_options = [[sg.Button("Load Earlier Tests", key="-LOAD_COMBINATIONS-"),
                        sg.Text("Calibration Option:", font=(font, 10, 'bold')),
                        sg.DropDown(calibration_options, size=(20, 8), key="-CALIBRATION_OPTION-"),
-                       sg.Button("Calibrate Loss", key="-CALIBRATE-")])
-        layout.append([sg.Button("Add to Test List"), sg.Button("View"),
+                       sg.Button("Calibrate Loss", key="-CALIBRATE-")], [sg.Button("Add to Test List"), sg.Button("View"),
                        sg.Button("View All Test Cases", key="-VIEW_ALL_TEST_CASES-"), sg.Button("Clear Selections"),
-                       sg.Button("Delete All Test Cases"), sg.Button("Delete Test Case")])
-        layout.append([self.test_list, sg.Button("Open Loss Calibration File")])
-        layout.append(
-            [sg.Button("Run Selected Test In Testlist", button_color='Green', size=(8,4)), sg.Button("Run All Tests"),
-             sg.Button("Pause"), sg.Button("Resume"), sg.Button("Stop"), sg.Button("Exit")])
+                       sg.Button("Delete All Test Cases"), sg.Button("Delete Test Case")], [self.test_list, sg.Button("Open Loss Calibration File")]]
+
+        run_test_layout = [[sg.Button("Run Selected Test In Testlist", button_color='Green', size=(8,4)), sg.Button("Run All Tests"),
+             sg.Button("Pause"), sg.Button("Resume"), sg.Button("Stop"), sg.Button("Exit")]]
+
+        layout.append([sg.Menu(menu_bar)])
+        layout.append([sg.Frame('Current DUT status', status_frame_layout, title_color='black', font=(font, 12, 'bold')), sg.Frame('Current Equipment status', test_equipment_status_layout, title_color='black', font=(font, 12, 'bold'))])
+        layout.append([sg.Frame('Test Config Options',test_configure_options, title_color='black', font=(font, 12, 'bold')), sg.Frame('Test Run Window',run_test_layout, title_color='black', font=(font, 12, 'bold')) ])
+        # layout.append([sg.TabGroup([tab_layout], key="-PARAMS-", focus_color='White', font=(font, font_size, 'normal'),
+        #                            tab_location='left', tab_border_width=1, expand_x=True, expand_y=True,
+        #                            selected_title_color='Black', selected_background_color='Yellow')])
+        layout.append([sg.TabGroup([
+            [sg.Tab('First Set Tests', [[sg.TabGroup([tab_layout_first], font=(font, font_size, 'normal'),
+                                              selected_background_color='Yellow', expand_x=True, expand_y=True,
+                                              selected_title_color='Black', tab_border_width=1, focus_color='White',
+                                              tab_location='left', key="-PARAMS-", )]]),
+             sg.Tab('Second Set Tests', [[sg.TabGroup([tab_layout_second], font=(font, font_size, 'normal'),
+                                              selected_background_color='Yellow', expand_x=True, expand_y=True,
+                                              selected_title_color='Black', tab_border_width=1, focus_color='White',
+                                              tab_location='left', key="-PARAMS-", )]],
+                    font=(font, font_size, 'normal'))],
+        ], font=(font, 14, 'normal'), selected_title_color='Black', selected_background_color='Yellow')])
         layout.append([sg.Multiline("", key="-OUTPUT-", size=(110, 14))])
         layout.append([sg.Button("Clear Output", key="-CLEAR-")])
         layout.append([
@@ -421,12 +456,6 @@ class AutomatedGui():
     def flush(self):  # This is for the log
         self.terminal.flush()
         self.log.flush()
-
-    def check_status_function(self, status):
-        if status:
-            return 'Available'
-        else:
-            return 'Not Available'
 
     def mainloop(self): # This loop handles all the events of the GUI
         w = self.width
