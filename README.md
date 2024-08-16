@@ -13,7 +13,6 @@ Directly run the AutomatedGuiInterface.py file, you will see a window opened.
 You can directly add test parameters to test list and run the selected this. 
 You can add/change the event handling code inside the mainloop of .py file to what you actually want the test to do. (Function handling)
 
-![image](https://github.com/user-attachments/assets/a1dd7dcf-57a7-4397-879f-8a9b6e880a04)
 
 
 
