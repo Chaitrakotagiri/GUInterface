@@ -2,32 +2,31 @@ pipeline {
     agent any
 
     environment {
-        // Set Python version or path if necessary
-        PYTHON = 'python3'  // or 'python' based on your environment
+        PYTHON = 'python3'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Pull the latest code from the GitHub repository
-                git branch: 'main', url: 'https://github.com/Chaitrakotagiri/GUInterface.git'
+                git url: 'https://github.com/Chaitrakotagiri/GUInterface.git', branch: 'main'
             }
         }
 
         stage('Setup Python Environment') {
             steps {
-                // Install Python dependencies if necessary (e.g., from requirements.txt)
                 script {
-                    sh 'pip install -r requirements.txt'  // Adjust if using a different file or package manager
+                    // Set up a virtual environment and activate it
+                    sh 'python3 -m venv venv'  // Create virtual environment
+                    sh '. venv/bin/activate'    // Activate virtual environment
+                    sh 'pip install -r requirements.txt'  // Install dependencies
                 }
             }
         }
 
         stage('Run Python Script') {
             steps {
-                // Run the main.py script
                 script {
-                    sh 'python main.py'
+                    sh '. venv/bin/activate && python main.py'  // Run the Python script
                 }
             }
         }
@@ -35,7 +34,6 @@ pipeline {
 
     post {
         always {
-            // Clean up or perform other actions like sending notifications
             echo 'Pipeline finished.'
         }
         success {
