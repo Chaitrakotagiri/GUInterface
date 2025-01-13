@@ -10,7 +10,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Pull the latest code from the GitHub repository
-                git branch: 'main', url: 'https://https://github.com/Chaitrakotagiri/GUInterface.git'
+                git branch: 'main', url: 'https://github.com/Chaitrakotagiri/GUInterface.git'
             }
         }
 
