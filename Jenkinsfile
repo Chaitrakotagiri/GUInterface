@@ -15,10 +15,14 @@ pipeline {
         stage('Setup Python Environment') {
             steps {
                 script {
-                    // Set up a virtual environment and activate it
-                    sh 'python3 -m venv venv'  // Create virtual environment
-                    sh '. venv/bin/activate'    // Activate virtual environment
-                    sh 'pip install -r requirements.txt'  // Install dependencies
+                    // Create virtual environment
+                    sh 'python3 -m venv venv'
+                    
+                    // Manually install pip if it's missing
+                    sh 'python3 -m ensurepip --upgrade'
+                    
+                    // Activate virtual environment and install requirements
+                    sh '. venv/bin/activate && pip install -r requirements.txt'
                 }
             }
         }
@@ -26,7 +30,8 @@ pipeline {
         stage('Run Python Script') {
             steps {
                 script {
-                    sh '. venv/bin/activate && python main.py'  // Run the Python script
+                    // Run the Python script in the virtual environment
+                    sh '. venv/bin/activate && python main.py'
                 }
             }
         }
